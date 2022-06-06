@@ -6,15 +6,16 @@ using StaticArraysCore: SizedArray, SizedVector, SizedMatrix
 
 @testset "types" begin
     @test SArray{Tuple{2},Int,1}((1, 2)) isa SArray
+    @test SArray{Tuple{2},Float64,1}((1, 2)) isa SVector{2,Float64}
     @test SVector{2,Int}((1, 2)) isa SVector
     @test SMatrix{1,2,Int}((1, 2)) isa SMatrix
 
     @test MArray{Tuple{2},Int,1}((1, 2)) isa MArray
+    @test MArray{Tuple{2},Int,1,2}(undef) isa MArray
+    @test MArray{Tuple{2},Float64,1}((1, 2)) isa MVector{2,Float64}
     @test MVector{2,Int}((1, 2)) isa MVector
     @test MMatrix{1,2,Int}((1, 2)) isa MMatrix
 
-    @test SizedArray{Tuple{2},Int,1}([1, 2]) isa SizedArray
-    @test SizedVector{2,Int}([1, 2]) isa SizedVector
-    @test SizedMatrix{1,2,Int}(fill(0, 1, 2)) isa SizedMatrix
+    @test SizedArray{Tuple{2},Int,2,1,Vector{Int}}([1, 2]) isa SizedArray
+    @test SizedArray{Tuple{2},Int,2,1,Vector{Int}}(undef) isa SizedArray
 end
-

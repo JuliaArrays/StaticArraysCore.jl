@@ -76,6 +76,17 @@ end
     return nothing
 end
 
+# Cast any Tuple to an TupleN{T}
+@inline convert_ntuple(::Type{T},d::T) where {T} = T # For zero-dimensional arrays
+@inline convert_ntuple(::Type{T},d::NTuple{N,T}) where {N,T} = d
+@generated function convert_ntuple(::Type{T}, d::NTuple{N,Any}) where {N,T}
+    exprs = ntuple(i -> :(convert(T, d[$i])), Val(N))
+    return quote
+        Base.@_inline_meta
+        $(Expr(:tuple, exprs...))
+    end
+end
+
 
 """
     SArray{S, T, N, L}(x::NTuple{L})
@@ -187,20 +198,6 @@ end
 
 @inline MArray{S,T,N}(x::Tuple) where {S<:Tuple,T,N} = MArray{S,T,N,tuple_prod(S)}(x)
 
-@generated function (::Type{MArray{S,T,N}})(::UndefInitializer) where {S,T,N}
-    return quote
-        $(Expr(:meta, :inline))
-        MArray{S, T, N, $(tuple_prod(S))}(undef)
-    end
-end
-
-@generated function (::Type{MArray{S,T}})(::UndefInitializer) where {S,T}
-    return quote
-        $(Expr(:meta, :inline))
-        MArray{S, T, $(tuple_length(S)), $(tuple_prod(S))}(undef)
-    end
-end
-
 """
     MVector{S,T}(undef)
     MVector{S,T}(x::NTuple{S, T})
@@ -273,19 +270,6 @@ struct SizedArray{S<:Tuple,T,N,M,TData<:AbstractArray{T,M}} <: StaticArray{S,T,N
     function SizedArray{S,T,N,N,TData}(::UndefInitializer) where {S<:Tuple,T,N,TData<:AbstractArray{T,N}}
         return new{S,T,N,N,TData}(TData(undef, size_to_tuple(S)...))
     end
-end
-
-@inline function SizedArray{S,T,N,M}(a::AbstractArray) where {S<:Tuple,T,N,M}
-    if eltype(a) == T && (M == 1 || M == ndims(a))
-        a′ = M == 1 ? vec(a) : a
-        return SizedArray{S,T,N,M,typeof(a′)}(a′)
-    end
-    return convert(SizedArray{S,T,N,M}, a)
-end
-
-@inline function SizedArray{S,T,N}(a::AbstractArray) where {S<:Tuple,T,N}
-    M = ndims(a) == N ? N : 1
-    return SizedArray{S,T,N,M}(a)
 end
 
 const SizedVector{S,T} = SizedArray{Tuple{S},T,1,1}
