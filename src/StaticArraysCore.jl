@@ -46,6 +46,14 @@ Base.@pure tuple_prod(T::Tuple) = prod(T)
 Base.@pure tuple_minimum(T::Type{<:Tuple}) = length(T.parameters) == 0 ? 0 : minimum(tuple(T.parameters...))
 Base.@pure tuple_minimum(T::Tuple) = minimum(T)
 
+"""
+    size_to_tuple(::Type{S}) where S<:Tuple
+
+Converts a size given by `Tuple{N, M, ...}` into a tuple `(N, M, ...)`.
+"""
+Base.@pure function size_to_tuple(::Type{S}) where S<:Tuple
+    return tuple(S.parameters...)
+end
 
 # Something doesn't match up type wise
 function check_array_parameters(Size, T, N, L)
@@ -102,6 +110,42 @@ end
 
 @inline SArray{S,T,N}(x::Tuple) where {S<:Tuple,T,N} = SArray{S,T,N,tuple_prod(S)}(x)
 
+"""
+    SVector{S, T}(x::NTuple{S, T})
+    SVector{S, T}(x1, x2, x3, ...)
+
+Construct a statically-sized vector `SVector`. Since this type is immutable,
+the data must be provided upon construction and cannot be mutated later.
+Constructors may drop the `T` and `S` parameters if they are inferrable from the
+input (e.g. `SVector(1,2,3)` constructs an `SVector{3, Int}`).
+
+    SVector{S}(vec::Vector)
+
+Construct a statically-sized vector of length `S` using the data from `vec`.
+The parameter `S` is mandatory since the length of `vec` is unknown to the
+compiler (the element type may optionally also be specified).
+"""
+const SVector{S, T} = SArray{Tuple{S}, T, 1, S}
+
+"""
+    SMatrix{S1, S2, T, L}(x::NTuple{L, T})
+    SMatrix{S1, S2, T, L}(x1, x2, x3, ...)
+
+Construct a statically-sized matrix `SMatrix`. Since this type is immutable,
+the data must be provided upon construction and cannot be mutated later. The
+`L` parameter is the `length` of the array and is always equal to `S1 * S2`.
+Constructors may drop the `L`, `T` and even `S2` parameters if they are inferrable
+from the input (e.g. `L` is always inferrable from `S1` and `S2`).
+
+    SMatrix{S1, S2}(mat::Matrix)
+
+Construct a statically-sized matrix of dimensions `S1 × S2` using the data from
+`mat`. The parameters `S1` and `S2` are mandatory since the size of `mat` is
+unknown to the compiler (the element type may optionally also be specified).
+"""
+const SMatrix{S1, S2, T, L} = SArray{Tuple{S1, S2}, T, 2, L}
+
+# MArray
 
 """
     MArray{S, T, N, L}(undef)
@@ -157,6 +201,95 @@ end
     end
 end
 
+"""
+    MVector{S,T}(undef)
+    MVector{S,T}(x::NTuple{S, T})
+    MVector{S,T}(x1, x2, x3, ...)
 
+Construct a statically-sized, mutable vector `MVector`. Data may optionally be
+provided upon construction, and can be mutated later. Constructors may drop the
+`T` and `S` parameters if they are inferrable from the input (e.g.
+`MVector(1,2,3)` constructs an `MVector{3, Int}`).
+
+    MVector{S}(vec::Vector)
+
+Construct a statically-sized, mutable vector of length `S` using the data from
+`vec`. The parameter `S` is mandatory since the length of `vec` is unknown to the
+compiler (the element type may optionally also be specified).
+"""
+const MVector{S, T} = MArray{Tuple{S}, T, 1, S}
+
+"""
+    MMatrix{S1, S2, T, L}(undef)
+    MMatrix{S1, S2, T, L}(x::NTuple{L, T})
+    MMatrix{S1, S2, T, L}(x1, x2, x3, ...)
+
+Construct a statically-sized, mutable matrix `MMatrix`. The data may optionally
+be provided upon construction and can be mutated later. The `L` parameter is the
+`length` of the array and is always equal to `S1 * S2`. Constructors may drop
+the `L`, `T` and even `S2` parameters if they are inferrable from the input
+(e.g. `L` is always inferrable from `S1` and `S2`).
+
+    MMatrix{S1, S2}(mat::Matrix)
+
+Construct a statically-sized, mutable matrix of dimensions `S1 × S2` using the data from
+`mat`. The parameters `S1` and `S2` are mandatory since the size of `mat` is
+unknown to the compiler (the element type may optionally also be specified).
+"""
+const MMatrix{S1, S2, T, L} = MArray{Tuple{S1, S2}, T, 2, L}
+
+
+# SizedArray
+
+require_one_based_indexing(A...) = !Base.has_offset_axes(A...) ||
+    throw(ArgumentError("offset arrays are not supported but got an array with index other than 1"))
+
+"""
+    SizedArray{Tuple{dims...}}(array)
+
+Wraps an `AbstractArray` with a static size, so to take advantage of the (faster)
+methods defined by the static array package. The size is checked once upon
+construction to determine if the number of elements (`length`) match, but the
+array may be reshaped.
+
+The aliases `SizedVector{N}` and `SizedMatrix{N,M}` are provided as more
+convenient names for one and two dimensional `SizedArray`s. For example, to
+wrap a 2x3 array `a` in a `SizedArray`, use `SizedMatrix{2,3}(a)`.
+"""
+struct SizedArray{S<:Tuple,T,N,M,TData<:AbstractArray{T,M}} <: StaticArray{S,T,N}
+    data::TData
+
+    function SizedArray{S,T,N,M,TData}(a::TData) where {S<:Tuple,T,N,M,TData<:AbstractArray{T,M}}
+        require_one_based_indexing(a)
+        if size(a) != size_to_tuple(S) && size(a) != (tuple_prod(S),)
+            throw(DimensionMismatch("Dimensions $(size(a)) don't match static size $S"))
+        end
+        return new{S,T,N,M,TData}(a)
+    end
+
+    function SizedArray{S,T,N,1,TData}(::UndefInitializer) where {S<:Tuple,T,N,TData<:AbstractArray{T,1}}
+        return new{S,T,N,1,TData}(TData(undef, tuple_prod(S)))
+    end
+    function SizedArray{S,T,N,N,TData}(::UndefInitializer) where {S<:Tuple,T,N,TData<:AbstractArray{T,N}}
+        return new{S,T,N,N,TData}(TData(undef, size_to_tuple(S)...))
+    end
+end
+
+@inline function SizedArray{S,T,N,M}(a::AbstractArray) where {S<:Tuple,T,N,M}
+    if eltype(a) == T && (M == 1 || M == ndims(a))
+        a′ = M == 1 ? vec(a) : a
+        return SizedArray{S,T,N,M,typeof(a′)}(a′)
+    end
+    return convert(SizedArray{S,T,N,M}, a)
+end
+
+@inline function SizedArray{S,T,N}(a::AbstractArray) where {S<:Tuple,T,N}
+    M = ndims(a) == N ? N : 1
+    return SizedArray{S,T,N,M}(a)
+end
+
+const SizedVector{S,T} = SizedArray{Tuple{S},T,1,1}
+
+const SizedMatrix{S1,S2,T} = SizedArray{Tuple{S1,S2},T,2}
 
 end # module
