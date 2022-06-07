@@ -1,5 +1,12 @@
 module StaticArraysCore
 
+macro assume_foldable(ex)
+    if VERSION ≥ v"1.8.0-rc2" # cf. https://github.com/JuliaLang/julia/pull/45534
+        return :(Base.@assume_effects :foldable $ex)
+    else
+        return :(Base.@pure $ex)
+    end
+end
 
 """
     abstract type StaticArray{S, T, N} <: AbstractArray{T, N} end
@@ -39,19 +46,19 @@ const StaticVecOrMat{T} = Union{StaticVector{<:Any, T}, StaticMatrix{<:Any, <:An
 # The ::Tuple variants exist to make sure that anything that calls with a tuple
 # instead of a Tuple gets through to the constructor, so the user gets a nice
 # error message
-Base.@pure tuple_length(T::Type{<:Tuple}) = length(T.parameters)
-Base.@pure tuple_length(T::Tuple) = length(T)
-Base.@pure tuple_prod(T::Type{<:Tuple}) = length(T.parameters) == 0 ? 1 : *(T.parameters...)
-Base.@pure tuple_prod(T::Tuple) = prod(T)
-Base.@pure tuple_minimum(T::Type{<:Tuple}) = length(T.parameters) == 0 ? 0 : minimum(tuple(T.parameters...))
-Base.@pure tuple_minimum(T::Tuple) = minimum(T)
+@assume_foldable tuple_length(T::Type{<:Tuple}) = length(T.parameters)
+@assume_foldable tuple_length(T::Tuple) = length(T)
+@assume_foldable tuple_prod(T::Type{<:Tuple}) = length(T.parameters) == 0 ? 1 : *(T.parameters...)
+@assume_foldable tuple_prod(T::Tuple) = prod(T)
+@assume_foldable tuple_minimum(T::Type{<:Tuple}) = length(T.parameters) == 0 ? 0 : minimum(tuple(T.parameters...))
+@assume_foldable tuple_minimum(T::Tuple) = minimum(T)
 
 """
     size_to_tuple(::Type{S}) where S<:Tuple
 
 Converts a size given by `Tuple{N, M, ...}` into a tuple `(N, M, ...)`.
 """
-Base.@pure function size_to_tuple(::Type{S}) where S<:Tuple
+@assume_foldable function size_to_tuple(::Type{S}) where S<:Tuple
     return tuple(S.parameters...)
 end
 
