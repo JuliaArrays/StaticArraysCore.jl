@@ -56,14 +56,6 @@ Base.@pure function size_to_tuple(::Type{S}) where S<:Tuple
 end
 
 # Something doesn't match up type wise
-function check_array_parameters(Size, T, N, L)
-    (!isa(Size, DataType) || (Size.name !== Tuple.name)) && throw(ArgumentError("Static Array parameter Size must be a Tuple type, got $Size"))
-    !isa(T, Type) && throw(ArgumentError("Static Array parameter T must be a type, got $T"))
-    !isa(N.parameters[1], Int) && throw(ArgumentError("Static Array parameter N must be an integer, got $(N.parameters[1])"))
-    !isa(L.parameters[1], Int) && throw(ArgumentError("Static Array parameter L must be an integer, got $(L.parameters[1])"))
-    # shouldn't reach here. Anything else should have made it to the function below
-    error("Internal error. Please file a bug")
-end
 @generated function check_array_parameters(::Type{Size}, ::Type{T}, ::Type{Val{N}}, ::Type{Val{L}}) where {Size,T,N,L}
     if !all(x->isa(x, Int), Size.parameters)
         return :(throw(ArgumentError("Static Array parameter Size must be a tuple of Ints (e.g. `SArray{Tuple{3,3}}` or `SMatrix{3,3}`).")))
@@ -77,8 +69,6 @@ end
 end
 
 # Cast any Tuple to an TupleN{T}
-@inline convert_ntuple(::Type{T},d::T) where {T} = T # For zero-dimensional arrays
-@inline convert_ntuple(::Type{T},d::NTuple{N,T}) where {N,T} = d
 @generated function convert_ntuple(::Type{T}, d::NTuple{N,Any}) where {N,T}
     exprs = ntuple(i -> :(convert(T, d[$i])), Val(N))
     return quote
