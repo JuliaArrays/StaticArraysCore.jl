@@ -266,4 +266,8 @@ const SizedVector{S,T} = SizedArray{Tuple{S},T,1,1}
 
 const SizedMatrix{S1,S2,T} = SizedArray{Tuple{S1,S2},T,2}
 
+export SArray, SMatrix, SVector
+export MArray, MMatrix, MVector
+export SizedArray, SizedMatrix, SizedVector
+
 end # module
