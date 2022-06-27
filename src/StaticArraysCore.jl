@@ -1,5 +1,8 @@
 module StaticArraysCore
 
+export SArray, SMatrix, SVector
+export MArray, MMatrix, MVector
+export SizedArray, SizedMatrix, SizedVector
 
 """
     abstract type StaticArray{S, T, N} <: AbstractArray{T, N} end

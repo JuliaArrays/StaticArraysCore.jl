@@ -1,9 +1,5 @@
 using StaticArraysCore, Test
 
-using StaticArraysCore: SArray, SVector, SMatrix
-using StaticArraysCore: MArray, MVector, MMatrix
-using StaticArraysCore: SizedArray, SizedVector, SizedMatrix
-
 @testset "types" begin
     @test SArray{Tuple{2},Int,1}((1, 2)) isa SArray
     @test_throws ArgumentError SArray{Tuple{2},Int,2}((1, 2))
