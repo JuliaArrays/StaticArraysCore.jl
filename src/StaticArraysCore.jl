@@ -384,4 +384,9 @@ array operations as in the example below.
 """
 abstract type FieldVector{N, T} <: FieldArray{Tuple{N}, T, 1} end
 
+# Add a new BroadcastStyle for StaticArrays, derived from AbstractArrayStyle
+# A constructor that changes the style parameter N (array dimension) is also required
+struct StaticArrayStyle{N} <: Base.Broadcast.AbstractArrayStyle{N} end
+StaticArrayStyle{M}(::Val{N}) where {M,N} = StaticArrayStyle{N}()
+
 end # module
