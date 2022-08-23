@@ -22,4 +22,6 @@ using StaticArraysCore, Test
     @test StaticArraysCore.tuple_length((5, 3)) == 2
     @test StaticArraysCore.tuple_prod((5, 3)) == 15
     @test StaticArraysCore.tuple_minimum((5, 3)) == 3
+
+    @test StaticArraysCore.StaticArrayStyle{1}(Val(2)) === StaticArraysCore.StaticArrayStyle{2}()
 end
