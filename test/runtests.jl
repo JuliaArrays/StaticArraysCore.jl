@@ -1,4 +1,5 @@
 using StaticArraysCore, Test
+using StaticArraysCore: Size
 
 @testset "types" begin
     @test SArray{Tuple{2},Int,1}((1, 2)) isa SArray
@@ -24,4 +25,15 @@ using StaticArraysCore, Test
     @test StaticArraysCore.tuple_minimum((5, 3)) == 3
 
     @test StaticArraysCore.StaticArrayStyle{1}(Val(2)) === StaticArraysCore.StaticArrayStyle{2}()
+end
+
+@testset "Size" begin
+    M = SArray{Tuple{2,3,4},Int,3}(tuple(rand(Int, 24)...))
+    @test (@inferred Size(M)) === Size(2, 3, 4)
+    Ms = Size(M)
+    @test repr(Ms) == "Size(2, 3, 4)"
+    @test Size(2, StaticArraysCore.Dynamic(), 5) === Size{(2, StaticArraysCore.Dynamic(), 5)}()
+    @test Size((2, StaticArraysCore.Dynamic(), 5)) === Size{(2, StaticArraysCore.Dynamic(), 5)}()
+    @test Size(Tuple{2, StaticArraysCore.Dynamic(), 5}) === Size{(2, StaticArraysCore.Dynamic(), 5)}()
+    @test_throws ErrorException Size(SArray)
 end
