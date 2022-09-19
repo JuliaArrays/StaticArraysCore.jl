@@ -35,5 +35,7 @@ end
     @test Size(2, StaticArraysCore.Dynamic(), 5) === Size{(2, StaticArraysCore.Dynamic(), 5)}()
     @test Size((2, StaticArraysCore.Dynamic(), 5)) === Size{(2, StaticArraysCore.Dynamic(), 5)}()
     @test Size(Tuple{2, StaticArraysCore.Dynamic(), 5}) === Size{(2, StaticArraysCore.Dynamic(), 5)}()
+    @test Size([2 3; 4 5]) === Size{(StaticArraysCore.Dynamic(), StaticArraysCore.Dynamic())}()
+
     @test_throws ErrorException Size(SArray)
 end
