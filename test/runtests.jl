@@ -1,5 +1,4 @@
 using StaticArraysCore, Test
-using StaticArraysCore: Size
 
 @testset "types" begin
     @test SArray{Tuple{2},Int,1}((1, 2)) isa SArray
