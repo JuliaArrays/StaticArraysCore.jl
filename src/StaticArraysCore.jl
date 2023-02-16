@@ -44,19 +44,19 @@ const StaticVecOrMat{T} = Union{StaticVector{<:Any, T}, StaticMatrix{<:Any, <:An
 # The ::Tuple variants exist to make sure that anything that calls with a tuple
 # instead of a Tuple gets through to the constructor, so the user gets a nice
 # error message
-Base.@pure tuple_length(T::Type{<:Tuple}) = length(T.parameters)
-Base.@pure tuple_length(T::Tuple) = length(T)
-Base.@pure tuple_prod(T::Type{<:Tuple}) = length(T.parameters) == 0 ? 1 : *(T.parameters...)
-Base.@pure tuple_prod(T::Tuple) = prod(T)
-Base.@pure tuple_minimum(T::Type{<:Tuple}) = length(T.parameters) == 0 ? 0 : minimum(tuple(T.parameters...))
-Base.@pure tuple_minimum(T::Tuple) = minimum(T)
+tuple_length(T::Type{<:Tuple}) = length(T.parameters)
+tuple_length(T::Tuple) = length(T)
+tuple_prod(T::Type{<:Tuple}) = length(T.parameters) == 0 ? 1 : *(T.parameters...)
+tuple_prod(T::Tuple) = prod(T)
+tuple_minimum(T::Type{<:Tuple}) = length(T.parameters) == 0 ? 0 : minimum(tuple(T.parameters...))
+tuple_minimum(T::Tuple) = minimum(T)
 
 """
     size_to_tuple(::Type{S}) where S<:Tuple
 
 Converts a size given by `Tuple{N, M, ...}` into a tuple `(N, M, ...)`.
 """
-Base.@pure function size_to_tuple(::Type{S}) where S<:Tuple
+function size_to_tuple(::Type{S}) where S<:Tuple
     return tuple(S.parameters...)
 end
 
@@ -465,9 +465,9 @@ struct Size{S}
     end
 end
 
-Base.@pure Size(s::Tuple{Vararg{StaticDimension}}) = Size{s}()
-Base.@pure Size(s::StaticDimension...) = Size{s}()
-Base.@pure Size(s::Type{<:Tuple}) = Size{tuple(s.parameters...)}()
+Size(s::Tuple{Vararg{StaticDimension}}) = Size{s}()
+Size(s::StaticDimension...) = Size{s}()
+Size(s::Type{<:Tuple}) = Size{tuple(s.parameters...)}()
 
 Base.show(io::IO, ::Size{S}) where {S} = print(io, "Size", S)
 
@@ -491,6 +491,6 @@ Size(a::T) where {T<:AbstractArray} = Size(T)
 Size(::Type{SA}) where {SA <: StaticArray} = missing_size_error(SA)
 Size(::Type{SA}) where {SA <: StaticArray{S}} where {S<:Tuple} = @isdefined(S) ? Size(S) : missing_size_error(SA)
 
-Base.@pure Size(::Type{<:AbstractArray{<:Any, N}}) where {N} = Size(ntuple(_ -> Dynamic(), N))
+Size(::Type{<:AbstractArray{<:Any, N}}) where {N} = Size(ntuple(_ -> Dynamic(), N))
 
 end # module
