@@ -44,21 +44,28 @@ const StaticVecOrMat{T} = Union{StaticVector{<:Any, T}, StaticMatrix{<:Any, <:An
 # The ::Tuple variants exist to make sure that anything that calls with a tuple
 # instead of a Tuple gets through to the constructor, so the user gets a nice
 # error message
-Base.@pure tuple_length(T::Type{<:Tuple}) = length(T.parameters)
-Base.@pure tuple_length(T::Tuple) = length(T)
-Base.@pure tuple_prod(T::Type{<:Tuple}) = length(T.parameters) == 0 ? 1 : *(T.parameters...)
-Base.@pure tuple_prod(T::Tuple) = prod(T)
-Base.@pure tuple_minimum(T::Type{<:Tuple}) = length(T.parameters) == 0 ? 0 : minimum(tuple(T.parameters...))
-Base.@pure tuple_minimum(T::Tuple) = minimum(T)
+tuple_length(T::Tuple) = length(T)
+tuple_prod(T::Tuple) = prod(T)
+tuple_minimum(T::Tuple) = minimum(T)
+
+tuple_svec(::Type{T}) where {T<:Tuple} = T.parameters
+
+# Julia `Base` provides a function for this purpose since v1.1: `fieldtypes`.
+# We don't use it yet, though, because it wrecks type inference with Julia
+# v1.6.
+Base.@pure tuple_tuple(::Type{T}) where {T<:Tuple} = (tuple_svec(T)...,)
+
+tuple_length(::Type{<:NTuple{n, Any}}) where {n} = n
+tuple_prod(::Type{T}) where {T<:Tuple} = mapreduce(Int, *, tuple_tuple(T), init = 1)
+tuple_minimum(::Type{Tuple{}}) = 0
+tuple_minimum(::Type{T}) where {T<:Tuple{Any,Vararg}} = mapreduce(Int, min, tuple_tuple(T), init = typemax(Int))
 
 """
     size_to_tuple(::Type{S}) where S<:Tuple
 
 Converts a size given by `Tuple{N, M, ...}` into a tuple `(N, M, ...)`.
 """
-Base.@pure function size_to_tuple(::Type{S}) where S<:Tuple
-    return tuple(S.parameters...)
-end
+size_to_tuple(::Type{T}) where {T<:Tuple} = tuple_tuple(T)
 
 # Something doesn't match up type wise
 @generated function check_array_parameters(::Type{Size}, ::Type{T}, ::Type{Val{N}}, ::Type{Val{L}}) where {Size,T,N,L}
@@ -467,7 +474,7 @@ end
 
 Base.@pure Size(s::Tuple{Vararg{StaticDimension}}) = Size{s}()
 Base.@pure Size(s::StaticDimension...) = Size{s}()
-Base.@pure Size(s::Type{<:Tuple}) = Size{tuple(s.parameters...)}()
+Size(::Type{T}) where {T<:Tuple} = Size{tuple_tuple(T)}()
 
 Base.show(io::IO, ::Size{S}) where {S} = print(io, "Size", S)
 

@@ -1,6 +1,6 @@
 name = "StaticArraysCore"
 uuid = "1e83bf80-4336-4d27-bf5d-d5a4f845583c"
-version = "1.4.1"
+version = "1.4.2"
 
 [compat]
 julia = "1.6"
