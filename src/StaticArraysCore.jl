@@ -491,6 +491,6 @@ Size(a::T) where {T<:AbstractArray} = Size(T)
 Size(::Type{SA}) where {SA <: StaticArray} = missing_size_error(SA)
 Size(::Type{SA}) where {SA <: StaticArray{S}} where {S<:Tuple} = @isdefined(S) ? Size(S) : missing_size_error(SA)
 
-Base.@pure Size(::Type{<:AbstractArray{<:Any, N}}) where {N} = Size(ntuple(_ -> Dynamic(), Val(N)))
+Size(::Type{<:AbstractArray{<:Any, N}}) where {N} = Size(ntuple(_ -> Dynamic(), Val(N)))
 
 end # module
