@@ -7,7 +7,7 @@ export FieldArray, FieldMatrix, FieldVector
 export Size
 
 """
-    abstract type StaticArray{S, T, N} <: AbstractArray{T, N} end
+    abstract type StaticArray{S, T, N} <: DenseArray{T, N} end
     StaticScalar{T}     = StaticArray{Tuple{}, T, 0}
     StaticVector{N,T}   = StaticArray{Tuple{N}, T, 1}
     StaticMatrix{N,M,T} = StaticArray{Tuple{N,M}, T, 2}
