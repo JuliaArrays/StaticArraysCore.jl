@@ -35,7 +35,7 @@ For mutable containers you may also need to define the following:
 
 (see also `SVector`, `SMatrix`, `SArray`, `MVector`, `MMatrix`, `MArray`, `SizedArray`, `FieldVector`, `FieldMatrix` and `FieldArray`)
 """
-abstract type StaticArray{S <: Tuple, T, N} <: AbstractArray{T, N} end
+abstract type StaticArray{S <: Tuple, T, N} <: DenseArray{T, N} end
 const StaticScalar{T} = StaticArray{Tuple{}, T, 0}
 const StaticVector{N, T} = StaticArray{Tuple{N}, T, 1}
 const StaticMatrix{N, M, T} = StaticArray{Tuple{N, M}, T, 2}
