@@ -319,6 +319,9 @@ consider defining `similar_type` as in the `FieldVector` example.
 """
 abstract type FieldArray{N, T, D} <: StaticArray{N, T, D} end
 
+Base.convert(::Type{NamedTuple}, array::FieldArray) = Base.NamedTuple(array)
+Base.NamedTuple(array::FieldArray) = Base.NamedTuple{propertynames(array)}(array)
+
 """
     abstract FieldMatrix{N1, N2, T} <: FieldArray{Tuple{N1, N2}, 2}
 

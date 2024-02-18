@@ -24,6 +24,15 @@ using StaticArraysCore, Test
     @test StaticArraysCore.tuple_minimum((5, 3)) == 3
 
     @test StaticArraysCore.StaticArrayStyle{1}(Val(2)) === StaticArraysCore.StaticArrayStyle{2}()
+
+    struct __FieldArrayTest <: FieldVector{3,Float64}
+        a::Float64
+        b::Float64
+        c::Float64
+    end
+
+    @test __FieldArrayTest(1,2,3) isa SizedArray
+    @test convert(NamedTuple, __FieldArrayTest(1,2,3)) isa NamedTuple
 end
 
 @testset "Size" begin
