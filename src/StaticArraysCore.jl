@@ -247,7 +247,7 @@ require_one_based_indexing(A...) = !Base.has_offset_axes(A...) ||
     SizedArray{Tuple{dims...}}(array)
 
 Wraps an `AbstractArray` with a static size, so to take advantage of the (faster)
-methods defined by the static array package. The size is checked once upon
+methods defined by StaticArrays.jl. The size is checked once upon
 construction to determine if the number of elements (`length`) match, but the
 array may be reshaped.
 
@@ -274,8 +274,25 @@ struct SizedArray{S<:Tuple,T,N,M,TData<:AbstractArray{T,M}} <: StaticArray{S,T,N
     end
 end
 
+
+"""
+    SizedVector{S, T} <: SizedArray{Tuple{S}, T, 1, 1}
+
+Wraps a one-dimensional `AbstractArray` with static length `S` and element type `T`,
+leveraging the performance optimizations of StaticArrays.jl.
+
+For detailed usage and functionality, refer to the documentation of `SizedArray`.
+"""
 const SizedVector{S,T} = SizedArray{Tuple{S},T,1,1}
 
+"""
+    SizedMatrix{S1,S2,T} <: SizedArray{Tuple{S1,S2},T,2}
+
+Wraps a two-dimensional `AbstractArray` with static dimensions `S1` by `S2` and element type `T`,
+leveraging the performance optimizations of StaticArrays.jl.
+
+For detailed usage and functionality, refer to the documentation of `SizedArray`.
+"""
 const SizedMatrix{S1,S2,T} = SizedArray{Tuple{S1,S2},T,2}
 
 # FieldArray
