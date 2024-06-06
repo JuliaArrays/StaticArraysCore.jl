@@ -491,6 +491,7 @@ end
 
 Base.@pure Size(s::Tuple{Vararg{StaticDimension}}) = Size{s}()
 Base.@pure Size(s::StaticDimension...) = Size{s}()
+Size() = Size(())
 Size(::Type{T}) where {T<:Tuple} = Size{tuple_tuple(T)}()
 
 Base.show(io::IO, ::Size{S}) where {S} = print(io, "Size", S)

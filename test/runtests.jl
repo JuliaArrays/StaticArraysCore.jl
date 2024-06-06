@@ -29,6 +29,7 @@ end
 @testset "Size" begin
     M = SArray{Tuple{2,3,4},Int,3}(tuple(rand(Int, 24)...))
     @test (@inferred Size(M)) === Size(2, 3, 4)
+    @test (@inferred Size()) === Size{()}()
     Ms = Size(M)
     @test repr(Ms) == "Size(2, 3, 4)"
     @test Size(2, StaticArraysCore.Dynamic(), 5) === Size{(2, StaticArraysCore.Dynamic(), 5)}()
