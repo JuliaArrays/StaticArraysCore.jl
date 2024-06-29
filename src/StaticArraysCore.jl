@@ -485,12 +485,12 @@ Note that if dimensions are not known statically (e.g., for standard `Array`s),
 The `Size` constructor can be used to extract static dimension information from a given
 array. For example:
 
-```julia-repl
+```jldoctest
 julia> Size(zeros(SMatrix{3, 4}))
 Size(3, 4)
 
 julia> Size(zeros(3, 4))
-Size(StaticArrays.Dynamic(), StaticArrays.Dynamic())
+Size(StaticArraysCore.Dynamic(), StaticArraysCore.Dynamic())
 ```
 
 This has multiple uses, including "trait"-based dispatch on the size of a statically-sized
