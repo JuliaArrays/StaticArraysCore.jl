@@ -391,10 +391,15 @@ julia> sigma = Stress(1.0, 2.0, 3.0,
 will give you the transpose of what the multi-argument formatting suggests. For clarity,
 you may consider using the alternative
 
-```julia
-sigma = Stress(SA[1.0 2.0 3.0;
-                  4.0 5.0 6.0;
-                  7.0 8.0 9.0])
+```julia-repl
+julia> sigma = Stress(SA[1.0 2.0 3.0;
+                         4.0 5.0 6.0;
+                         7.0 8.0 9.0])
+
+3×3 Stress with indices SOneTo(3)×SOneTo(3):
+ 1.0  2.0  3.0
+ 4.0  5.0  6.0
+ 7.0  8.0  9.0
 ```
 """
 abstract type FieldMatrix{N1, N2, T} <: FieldArray{Tuple{N1, N2}, T, 2} end
