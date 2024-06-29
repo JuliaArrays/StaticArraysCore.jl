@@ -33,7 +33,14 @@ For mutable containers you may also need to define the following:
  - In some cases, a zero-parameter constructor, `MyStaticArray{...}()` for unintialized data
    is assumed to exist.
 
-(see also `SVector`, `SMatrix`, `SArray`, `MVector`, `MMatrix`, `MArray`, `SizedArray`, `FieldVector`, `FieldMatrix` and `FieldArray`)
+See also
+[`SVector`](@ref StaticArraysCore.SVector),
+[`SMatrix`](@ref StaticArraysCore.SMatrix),
+[`SArray`](@ref StaticArraysCore.SArray),
+[`MVector`](@ref), [`MMatrix`](@ref), [`MArray`](@ref),
+[`SizedArray`](@ref),
+[`FieldVector`](@ref StaticArraysCore.FieldVector),
+[`FieldMatrix`](@ref), and [`FieldArray`](@ref)
 """
 abstract type StaticArray{S <: Tuple, T, N} <: AbstractArray{T, N} end
 const StaticScalar{T} = StaticArray{Tuple{}, T, 0}
