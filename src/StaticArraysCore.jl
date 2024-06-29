@@ -7,7 +7,7 @@ export FieldArray, FieldMatrix, FieldVector
 export Size
 
 """
-    abstract type StaticArray{S, T, N} <: AbstractArray{T, N} end
+    abstract type StaticArray{S, T, N} <: AbstractArray{T, N}
     StaticScalar{T}     = StaticArray{Tuple{}, T, 0}
     StaticVector{N,T}   = StaticArray{Tuple{N}, T, 1}
     StaticMatrix{N,M,T} = StaticArray{Tuple{N,M}, T, 2}
@@ -165,7 +165,6 @@ const SMatrix{S1, S2, T, L} = SArray{Tuple{S1, S2}, T, 2, L}
     MArray{S, T, N, L}(x::NTuple{L})
     MArray{S, T, N, L}(x1, x2, x3, ...)
 
-
 Construct a statically-sized, mutable array `MArray`. The data may optionally be
 provided upon construction and can be mutated later. The `S` parameter is a Tuple-type
 specifying the dimensions, or size, of the array - such as `Tuple{3,4,5}` for a 3×4×5-sized
@@ -298,7 +297,7 @@ const SizedMatrix{S1,S2,T} = SizedArray{Tuple{S1,S2},T,2}
 # FieldArray
 
 """
-    abstract FieldArray{N, T, D} <: StaticArray{N, T, D}
+    abstract type FieldArray{N, T, D} <: StaticArray{N, T, D}
 
 Inheriting from this type will make it easy to create your own rank-D tensor types. A `FieldArray`
 will automatically define `getindex` and `setindex!` appropriately. An immutable
@@ -315,29 +314,31 @@ consider defining `similar_type` as in the `FieldVector` example.
 
 # Example
 
-    struct Stiffness <: FieldArray{Tuple{2,2,2,2}, Float64, 4}
-        xxxx::Float64
-        yxxx::Float64
-        xyxx::Float64
-        yyxx::Float64
-        xxyx::Float64
-        yxyx::Float64
-        xyyx::Float64
-        yyyx::Float64
-        xxxy::Float64
-        yxxy::Float64
-        xyxy::Float64
-        yyxy::Float64
-        xxyy::Float64
-        yxyy::Float64
-        xyyy::Float64
-        yyyy::Float64
-    end
+```julia
+struct Stiffness <: FieldArray{Tuple{2,2,2,2}, Float64, 4}
+    xxxx::Float64
+    yxxx::Float64
+    xyxx::Float64
+    yyxx::Float64
+    xxyx::Float64
+    yxyx::Float64
+    xyyx::Float64
+    yyyx::Float64
+    xxxy::Float64
+    yxxy::Float64
+    xyxy::Float64
+    yyxy::Float64
+    xxyy::Float64
+    yxyy::Float64
+    xyyy::Float64
+    yyyy::Float64
+end
+```
 """
 abstract type FieldArray{N, T, D} <: StaticArray{N, T, D} end
 
 """
-    abstract FieldMatrix{N1, N2, T} <: FieldArray{Tuple{N1, N2}, 2}
+    abstract type FieldMatrix{N1, N2, T} <: FieldArray{Tuple{N1, N2}, 2}
 
 Inheriting from this type will make it easy to create your own rank-two tensor types. A `FieldMatrix`
 will automatically define `getindex` and `setindex!` appropriately. An immutable
@@ -352,41 +353,47 @@ should consider defining `similar_type` as in the `FieldVector` example.
 
 # Example
 
-    struct Stress <: FieldMatrix{3, 3, Float64}
-        xx::Float64
-        yx::Float64
-        zx::Float64
-        xy::Float64
-        yy::Float64
-        zy::Float64
-        xz::Float64
-        yz::Float64
-        zz::Float64
-    end
+```julia
+struct Stress <: FieldMatrix{3, 3, Float64}
+    xx::Float64
+    yx::Float64
+    zx::Float64
+    xy::Float64
+    yy::Float64
+    zy::Float64
+    xz::Float64
+    yz::Float64
+    zz::Float64
+end
+```
 
- Note that the fields of any subtype of `FieldMatrix` must be defined in column major order.
- This means that formatting of constructors for literal `FieldMatrix` can be confusing. For example
+Note that the fields of any subtype of `FieldMatrix` must be defined in column major order.
+This means that formatting of constructors for literal `FieldMatrix` can be confusing. For example
 
-    sigma = Stress(1.0, 2.0, 3.0,
-                   4.0, 5.0, 6.0,
-                   7.0, 8.0, 9.0)
+```julia-repl
+julia> sigma = Stress(1.0, 2.0, 3.0,
+                      4.0, 5.0, 6.0,
+                      7.0, 8.0, 9.0)
 
-    3×3 Stress:
-     1.0  4.0  7.0
-     2.0  5.0  8.0
-     3.0  6.0  9.0
+3×3 Stress with indices SOneTo(3)×SOneTo(3):
+ 1.0  4.0  7.0
+ 2.0  5.0  8.0
+ 3.0  6.0  9.0
+```
 
 will give you the transpose of what the multi-argument formatting suggests. For clarity,
 you may consider using the alternative
 
-    sigma = Stress(SA[1.0 2.0 3.0;
-                      4.0 5.0 6.0;
-                      7.0 8.0 9.0])
+```julia
+sigma = Stress(SA[1.0 2.0 3.0;
+                  4.0 5.0 6.0;
+                  7.0 8.0 9.0])
+```
 """
 abstract type FieldMatrix{N1, N2, T} <: FieldArray{Tuple{N1, N2}, T, 2} end
 
 """
-    abstract FieldVector{N, T} <: FieldArray{Tuple{N}, 1}
+    abstract type FieldVector{N, T} <: FieldArray{Tuple{N}, 1}
 
 Inheriting from this type will make it easy to create your own vector types. A `FieldVector`
 will automatically define `getindex` and `setindex!` appropriately. An immutable
@@ -399,13 +406,15 @@ array operations as in the example below.
 
 # Example
 
-    struct Vec3D{T} <: FieldVector{3, T}
-        x::T
-        y::T
-        z::T
-    end
+```julia
+struct Vec3D{T} <: FieldVector{3, T}
+    x::T
+    y::T
+    z::T
+end
 
-    StaticArrays.similar_type(::Type{<:Vec3D}, ::Type{T}, s::Size{(3,)}) where {T} = Vec3D{T}
+StaticArrays.similar_type(::Type{<:Vec3D}, ::Type{T}, s::Size{(3,)}) where {T} = Vec3D{T}
+```
 """
 abstract type FieldVector{N, T} <: FieldArray{Tuple{N}, T, 1} end
 
