@@ -30,7 +30,7 @@ For mutable containers you may also need to define the following:
 
  - `setindex!` for a single element (linear indexing).
  - `similar(::Type{MyStaticArray}, ::Type{NewElType}, ::Size{NewSize})`.
- - In some cases, a zero-parameter constructor, `MyStaticArray{...}()` for unintialized data
+ - In some cases, a zero-parameter constructor, `MyStaticArray{...}()` for uninitialized data
    is assumed to exist.
 
 See also
