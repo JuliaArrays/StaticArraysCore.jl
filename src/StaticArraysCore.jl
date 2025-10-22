@@ -264,7 +264,11 @@ struct SizedArray{S<:Tuple,T,N,M,TData<:AbstractArray{T,M}} <: StaticArray{S,T,N
     function SizedArray{S,T,N,M,TData}(a::TData) where {S<:Tuple,T,N,M,TData<:AbstractArray{T,M}}
         Base.require_one_based_indexing(a)
         if size(a) != size_to_tuple(S) && size(a) != (tuple_prod(S),)
-            throw(DimensionMismatch(lazy"Dimensions $(size(a)) don't match static size $S"))
+            if VERSION >= v"1.8"
+                throw(DimensionMismatch(lazy"Dimensions $(size(a)) don't match static size $S"))
+            else
+                throw(DimensionMismatch("Dimensions $(size(a)) don't match static size $S"))
+            end
         end
         return new{S,T,N,M,TData}(a)
     end
