@@ -465,10 +465,10 @@ Used to signify that a dimension of an array is not known statically.
 """
 struct Dynamic end
 
-const StaticDimension = Union{Int, Dynamic}
+const StaticDimension = Union{Integer, Dynamic}
 
 """
-    Size(dims::Int...)
+    Size(dims::Integer...)
 
 `Size` is used extensively throughout the `StaticArrays` API to describe _compile-time_
 knowledge of the size of an array. The dimensions are stored as a type parameter and are
@@ -478,7 +478,7 @@ size of `A` can be obtained by `Size(A)`. (rather than `size(zeros(3,3))`, which
 `Base.Tuple{2,Int}`).
 
 Note that if dimensions are not known statically (e.g., for standard `Array`s),
-[`Dynamic()`](@ref) should be used instead of an `Int`.
+[`Dynamic()`](@ref) should be used instead of an `Integer`.
 
     Size(a::AbstractArray)
     Size(::Type{T<:AbstractArray})
