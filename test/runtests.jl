@@ -22,6 +22,12 @@ using StaticArraysCore, Test
     @test StaticArraysCore.tuple_length((5, 3)) == 2
     @test StaticArraysCore.tuple_prod((5, 3)) == 15
     @test StaticArraysCore.tuple_minimum((5, 3)) == 3
+    @test Tuple(StaticArraysCore.tuple_svec(Tuple{})) === ()
+    @test Tuple(StaticArraysCore.tuple_svec(Tuple{5,3})) === (5, 3)
+    @test Tuple(StaticArraysCore.tuple_svec(Tuple{Int,Float64})) === (Int, Float64)
+    @test_throws ArgumentError StaticArraysCore.tuple_svec(Union{})
+    @test_throws ArgumentError StaticArraysCore.tuple_tuple(Union{})
+    @test_throws ArgumentError StaticArraysCore.size_to_tuple(Union{})
 
     @test StaticArraysCore.StaticArrayStyle{1}(Val(2)) === StaticArraysCore.StaticArrayStyle{2}()
 end

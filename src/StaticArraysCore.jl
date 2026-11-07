@@ -56,6 +56,7 @@ tuple_prod(T::Tuple) = prod(T)
 tuple_minimum(T::Tuple) = minimum(T)
 
 tuple_svec(::Type{T}) where {T<:Tuple} = T.parameters
+tuple_svec(::Type{Union{}}) = throw(ArgumentError("Union{} is not a tuple type"))
 
 # Julia `Base` provides a function for this purpose since v1.1: `fieldtypes`.
 # We don't use it yet, though, because it wrecks type inference with Julia
